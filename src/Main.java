@@ -1,8 +1,8 @@
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.FileReader;
+
 import java.io.IOException;
-import java.io.PrintWriter;
+
 import java.nio.file.Files;
 import java.util.Scanner;
 
@@ -17,12 +17,12 @@ public class Main {
 		aespl = new File("aespayload.key");
 		if (!aespl.exists()) {
 			aes = new AES();
-			putExternal(aespl.getName(), aes.getPayload());
+			FileUtils.writeByteArrayToFile(aespl, aes.getPayload());
+			System.out.println("Generated new aespayload! To set your own key, type [key <yourkey>]");
 		} else {
 			aes = new AES(getExternal(aespl.getName()));
+			System.out.println("Restored aespayload from file!");
 		}
-
-		System.out.println("AES payload restored...\nTo change it, delete aespayload.key");
 
 		imgd = new ImageDecoder();
 
@@ -32,7 +32,7 @@ public class Main {
 		}
 
 		System.out.println(
-				"RGBenc\nCommands:\nenc <filepath> | Encode bytes from file to png\ndec <filepath.png> | Decode png-stored bytes to file\naen <filepath> | Encrypt with aes using current payload and encode to png\nade <filepath.png> | Decode png and decrypt aes using current payload\nrel <payloadfile> | Reload payload from file (if filename is not specified, payload will be loaded from aespayload.key)\nreg | Generate temporary payload\nsav <payloadfile> | Save current payload to file (if filename is not specified, payload will be saved to aespayload.key)");
+				"RGBenc\nCommands:\nenc <filepath> | Encode bytes from file to png\ndec <filepath.png> | Decode png-stored bytes to file\naen <filepath> | Encrypt with aes using current payload and encode to png\nade <filepath.png> | Decode png and decrypt aes using current payload\nrel <payloadfile> | Reload payload from file (if filename is not specified, payload will be loaded from aespayload.key)\ngen | Generate new random key\nsav <payloadfile> | Save current payload to file (if filename is not specified, payload will be saved to aespayload.key)\nkey <yourkey> | Set your own encryption key");
 		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		while (true) {
@@ -72,38 +72,24 @@ public class Main {
 		} else if (cmd.equals("sav")) {
 			if (img.equals(cmd))
 				img = "aespayload.key";
-			putExternal(img, aes.getPayload());
+			FileUtils.writeByteArrayToFile(new File(img), aes.getPayload());
 			System.out.println("Current payload saved to " + img);
-		} else if (cmd.equals("reg")) {
+		} else if (cmd.equals("gen")) {
 			aes = new AES();
-			System.out.println("Temporary payload: " + aes.getPayload());
-		} else if (cmd.equals("set")) {
+			FileUtils.writeByteArrayToFile(aespl, aes.getPayload());
+		} else if (cmd.equals("key")) {
 			aes = new AES(img);
+			FileUtils.writeByteArrayToFile(aespl, aes.getPayload());
 		} else if (cmd.equals("exi"))
 			System.exit(0);
 	}
 
-	public static void putExternal(String name, String text) {
+	public static byte[] getExternal(String name) {
 		try {
-			File file = new File(name);
-			PrintWriter pw = new PrintWriter(file);
-			pw.print(text);
-			pw.close();
-		} catch (Exception e) {
-
-		}
-	}
-
-	public static String getExternal(String name) {
-		try {
-			File file = new File(name);
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			String line1 = br.readLine();
-			br.close();
-			return line1;
-		} catch (Exception e) {
+			return Files.readAllBytes(new File(name).toPath());
+		} catch (IOException e) {
 			e.printStackTrace();
-			return "";
+			return null;
 		}
 	}
 }
