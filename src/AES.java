@@ -29,8 +29,7 @@ public class AES {
 	private byte[] convKey(String pas) {
 		try {
 			char[] password = pas.toCharArray();
-			byte[] salt = new byte[16];
-			new Random().nextBytes(salt);
+			byte[] salt = this.iv;
 			SecretKeyFactory kf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			PBEKeySpec spec = new PBEKeySpec(password, salt, 8192, 256);
 			SecretKey tmp = kf.generateSecret(spec);
