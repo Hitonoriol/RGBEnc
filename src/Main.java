@@ -57,7 +57,7 @@ public class Main {
 		} else if (cmd.equals("aen")) {
 			FileUtils.writeByteArrayToFile(new File("enc" + farg.getName()),
 					aes.encrypt(Files.readAllBytes(farg.toPath())));
-			imgd.encodeRGB("enc" + img, fn);
+			imgd.encodeRGB(new File("enc" + farg.getName()).getName(), fn);
 			new File("enc" + farg.getName()).delete();
 			System.out.println("Encrypted and encoded successfully!");
 		} else if (cmd.equals("ade")) {
