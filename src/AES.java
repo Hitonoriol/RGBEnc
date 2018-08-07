@@ -18,7 +18,6 @@ public class AES {
 	public AES(String payload) {
 		this.key = convKey(payload);
 		genIV();
-
 	}
 
 	public AES(byte[] payload) {

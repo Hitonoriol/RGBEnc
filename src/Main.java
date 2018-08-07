@@ -32,7 +32,7 @@ public class Main {
 		}
 
 		System.out.println(
-				"RGBenc\nCommands:\nenc <filepath> | Encode bytes from file to png\ndec <filepath.png> | Decode png-stored bytes to file\naen <filepath> | Encrypt with aes using current payload and encode to png\nade <filepath.png> | Decode png and decrypt aes using current payload\nrel <payloadfile> | Reload payload from file (if filename is not specified, payload will be loaded from aespayload.key)\ngen | Generate new random key\nsav <payloadfile> | Save current payload to file (if filename is not specified, payload will be saved to aespayload.key)\nkey <yourkey> | Set your own encryption key");
+				"RGBenc\nCommands:\nenc <filepath> | Encode bytes from file to png\ndec <filepath.png> | Decode png-stored bytes to file\naen <filepath> [[--kf <keyfile.key>] or [--ks <key string>]] | Encrypt with aes using current payload and encode to png\nade <filepath.png> [[--kf <keyfile.key>] or [--ks <key string>]] | Decode png and decrypt aes using current payload\nrel <payloadfile> | Reload payload from file (if filename is not specified, payload will be loaded from aespayload.key)\ngen | Generate new random key\nsav <payloadfile> | Save current payload to file (if filename is not specified, payload will be saved to aespayload.key)\nkey <yourkey> | Set your own encryption key");
 		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		while (true) {
@@ -46,6 +46,7 @@ public class Main {
 		String cmd = img.substring(0, 3).trim();
 		if (img.length() > 3)
 			img = img.substring(4).trim();
+		img = userArgs(img);
 		File farg = new File(img);
 		String fn = System.currentTimeMillis() + "";
 		if (cmd.equals("dec")) {
@@ -82,6 +83,23 @@ public class Main {
 			FileUtils.writeByteArrayToFile(aespl, aes.getPayload());
 		} else if (cmd.equals("exi"))
 			System.exit(0);
+	}
+
+	public static String userArgs(String img) {
+		if (img.indexOf("--kf") != -1) {
+			String cnt[] = img.split("\\-\\-kf");
+			String kf = cnt[1].trim();
+			aes = new AES(getExternal(kf));
+			System.out.println("Loaded key from file " + kf);
+			return cnt[0].trim();
+		} else if (img.indexOf("--ks") != -1) {
+			String[] cnt = img.split("\\-\\-ks");
+			String ks = cnt[1].trim();
+			aes = new AES(ks);
+			System.out.println("Created key from string!");
+			return cnt[0].trim();
+		}
+		return img;
 	}
 
 	public static byte[] getExternal(String name) {
